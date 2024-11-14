@@ -7,7 +7,7 @@ jobs:
     name: Apply Terraform Script
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
-
+    # 'push' muss in '' sein
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
