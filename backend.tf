@@ -5,3 +5,6 @@ terraform {
     region = "eu-central-1"
   }
 }
+
+
+# s3 name in AWS darf keine GROß Buchstaben haben
