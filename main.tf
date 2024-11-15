@@ -12,13 +12,14 @@ provider "aws" {
 }
 
 resource "aws_instance" "G_Actions_Terraform_Instanz" {
-  count = 5
+  # count = 5
   ami           = "ami-0eddb4a4e7d846d6f"
   instance_type = "t2.micro"
   key_name = "Terraform-key.pem"
 
   tags = {
     Name = "EC2-HA ${count.index + 1}"
+    # Name = "EC2-HA ${count.index + 1}"
   }
 }
 
