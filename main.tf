@@ -19,7 +19,6 @@ resource "aws_instance" "G_Actions_Terraform_Instanz" {
 
   tags = {
     Name = "EC2-HA"
-    # Name = "EC2-HA ${count.index + 1}"
   }
 }
 
