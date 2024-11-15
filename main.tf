@@ -13,9 +13,10 @@ provider "aws" {
 
 resource "aws_instance" "G_Actions_Terraform_Instanz" {
   # count = 5
-  ami           = "ami-0eddb4a4e7d846d6f"
-  instance_type = "t2.micro"
-  key_name = "Terraform-key"
+  ami                    = "ami-0eddb4a4e7d846d6f"
+  instance_type          = "t2.micro"
+  key_name               = "Terraform-key"
+  vpc_security_group_ids = [aws_security_group.ssh_access.id]
 
   tags = {
     Name = "EC2-HA"
@@ -26,6 +27,28 @@ output "instance_public_ips" {
   value = aws_instance.G_Actions_Terraform_Instanz.*.public_ip
 }
 
+resource "aws_security_group" "ssh_access" {
+  name = "ssh_access"
+
+  ingress = {
+    from_port  = 22
+    to_port    = 22
+    protocol   = "tcp"
+    cidr_block = ["0.0.0.0/0"]
+  }
+
+
+  egress = {
+    from_port  = 0
+    to_port    = 0
+    protocol   = "-1"
+    cidr_block = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "ssh_access"
+  }
+}
 
 
 
