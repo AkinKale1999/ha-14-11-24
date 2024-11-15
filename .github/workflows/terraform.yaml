@@ -1,19 +1,21 @@
-name: Ha-Terraform-Workflow
+name: Ha-Terraform-Workflow # Name des Workflows, damit er im GitHub-Interface erkennbar ist
 
-on: [push, workflow_dispatch]
+on: [push, workflow_dispatch] # Der Workflow wird automatisch bei einem Push ausgelöst oder kann manuell gestartet werden.
 
 jobs:
-  for_the_push_workflow:
-    name: Apply Terraform Script
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    # 'push' muss in '' sein
+  for_the_push_workflow: # Job für das Erstellen der Infrastruktur
+    name: Apply Terraform Script # Klarer Name des Jobs, der die Terraform-Befehle ausführt
+    runs-on: ubuntu-latest # Der Job läuft auf einer virtuellen Ubuntu-Umgebung
+    if: github.event_name == 'push' # Dieser Job wird nur bei einem Push ausgelöst, nicht bei manuellen Starts
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        # Grund: Der Repository-Code muss lokal auf den Server geladen werden, damit Terraform-Skripte und Konfigurationen zugänglich sind.
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
+        # Grund: Terraform muss auf dem Server installiert werden, um die Skripte auszuführen.
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -21,24 +23,30 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
+        # Grund: Terraform benötigt Zugriff auf AWS-Ressourcen. Die Zugangsdaten werden sicher über GitHub Secrets übergeben, um sensible Daten zu schützen.
 
       - name: Terraform init
         run: terraform init
+        # Grund: Initialisiert Terraform. Das lädt die erforderlichen Provider-Plugins (z. B. für AWS) und richtet den Arbeitsbereich ein.
 
       - name: Terraform apply
         run: terraform apply -auto-approve
+        # Grund: Wendet die Terraform-Konfiguration an, um die Infrastruktur zu erstellen.
+        # Warum `-auto-approve`? Verhindert manuelle Bestätigungen, da der Workflow automatisiert ist.
 
-  destroy:
-    name: Destroy Terraform Script
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
+  destroy: # Zweiter Job für das Zerstören der Infrastruktur
+    name: Destroy Terraform Script # Name des Jobs, der Terraform-Befehle für das Löschen ausführt
+    runs-on: ubuntu-latest # Auch dieser Job läuft auf einer virtuellen Ubuntu-Umgebung
+    if: github.event_name == 'workflow_dispatch' # Dieser Job wird nur manuell ausgelöst, um versehentliches Löschen zu vermeiden
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        # Grund: Lädt das Repository auf den Server, um Zugriff auf die Terraform-Skripte zu haben.
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
+        # Grund: Installiert Terraform, um Skripte für das Zerstören der Infrastruktur auszuführen.
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -46,9 +54,13 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
+        # Grund: Benötigt AWS-Zugangsdaten, um die Infrastruktur zu löschen. Auch hier werden die Zugangsdaten über Secrets sicher bereitgestellt.
 
       - name: Terraform init
         run: terraform init
+        # Grund: Terraform-Initialisierung ist erforderlich, um die aktuelle Infrastruktur zu laden und die Umgebung für das Löschen vorzubereiten.
 
       - name: Terraform destroy
         run: terraform destroy -auto-approve
+        # Grund: Zerstört die Infrastruktur, die mit dem `apply`-Job erstellt wurde.
+        # Warum `-auto-approve`? Der Prozess ist manuell gesteuert, daher wird hier keine zusätzliche Bestätigung benötigt.

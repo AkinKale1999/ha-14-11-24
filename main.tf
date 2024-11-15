@@ -12,13 +12,22 @@ provider "aws" {
 }
 
 resource "aws_instance" "G_Actions_Terraform_Instanz" {
+  count = 5
   ami           = "ami-0eddb4a4e7d846d6f"
   instance_type = "t2.micro"
+  key_name = "Terraform-key.pem"
 
   tags = {
-    Name = "EC2-HA"
+    Name = "EC2-HA ${count.index + 1}"
   }
 }
+
+output "instance_public_ips" {
+  value = aws_instance.G_Actions_Terraform_Instanz.*.public_ip
+}
+
+
+
 
 resource "aws_vpc" "Instanz_For_Terraform" {
   cidr_block = "10.0.0.0/16"
