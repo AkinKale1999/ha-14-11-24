@@ -18,7 +18,7 @@ resource "aws_instance" "G_Actions_Terraform_Instanz" {
   key_name = "Terraform-key.pem"
 
   tags = {
-    Name = "EC2-HA ${count.index + 1}"
+    Name = "EC2-HA"
     # Name = "EC2-HA ${count.index + 1}"
   }
 }
